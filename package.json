@@ -30,7 +30,14 @@
         "deb"
       ],
       "category": "Utility",
-      "icon": "assets/icons/icon.png"
+      "icon": "assets/icons/icon.png",
+      "icons": {
+        "16x16": "assets/icons/icon-16x16.png",
+        "32x32": "assets/icons/icon-32x32.png",
+        "48x48": "assets/icons/icon-48x48.png",
+        "128x128": "assets/icons/icon-128x128.png",
+        "256x256": "assets/icons/icon-256x256.png"
+      }
     }
   }
 }
