@@ -10,24 +10,52 @@ let mainWindow;
 
 app.disableHardwareAcceleration();
 
-app.on('ready', async () => {
-    // Проверка, существует ли файл настроек, если нет — создание
-    await ensureSettingsFileExists();
-
-    mainWindow = new BrowserWindow({
-        width: 800,
-        height: 865,
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: false,
-            contextIsolation: true,
-        },
-        autoHideMenuBar: true,
+// Функция для проверки установки Docker и Docker Compose
+async function checkDockerInstallation() {
+    return new Promise((resolve, reject) => {
+        exec('command -v docker', (error, stdout) => {
+            if (error || !stdout) {
+                reject('Docker is not installed');
+            } else {
+                exec('command -v docker-compose', (error2, stdout2) => {
+                    if (error2 || !stdout2) {
+                        reject('docker-compose is not installed');
+                    } else {
+                        resolve('Docker and docker-compose are installed');
+                    }
+                });
+            }
+        });
     });
+}
 
-    mainWindow.setMenuBarVisibility(false);
-    mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
-});
+// Вызываем проверку при старте приложения
+async function initializeApp() {
+    try {
+        await checkDockerInstallation();  // Проверка Docker перед запуском приложения
+        await ensureSettingsFileExists();
+
+        mainWindow = new BrowserWindow({
+            width: 800,
+            height: 865,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                nodeIntegration: false,
+                contextIsolation: true,
+            },
+            autoHideMenuBar: true,
+            icon: path.join(__dirname, 'assets', 'icons', 'icon.png')  // Путь к иконке
+        });
+
+        mainWindow.setMenuBarVisibility(false);
+        mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+    } catch (error) {
+        console.error(error);
+        app.quit();  // Закрываем приложение, если Docker не установлен
+    }
+}
+
+app.whenReady().then(initializeApp);
 
 ipcMain.handle('select-folder', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
@@ -208,29 +236,3 @@ async function ensureSettingsFileExists() {
         await fs.promises.writeFile(SETTINGS_PATH, JSON.stringify(defaultSettings, null, 2), 'utf-8');
     }
 }
-
-// Проверка наличия Docker и Docker Compose в системе
-async function checkDockerInstallation() {
-    return new Promise((resolve, reject) => {
-        exec('command -v docker', (error, stdout) => {
-            if (error || !stdout) {
-                reject('Docker is not installed');
-            } else {
-                exec('command -v docker-compose', (error2, stdout2) => {
-                    if (error2 || !stdout2) {
-                        reject('docker-compose is not installed');
-                    } else {
-                        resolve('Docker and docker-compose are installed');
-                    }
-                });
-            }
-        });
-    });
-}
-
-// Вызываем проверку при старте приложения
-checkDockerInstallation().then((message) => {
-    console.log(message);
-}).catch((error) => {
-    console.error(error);
-});
