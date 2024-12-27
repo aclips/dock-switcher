@@ -1,0 +1,36 @@
+{
+  "name": "dock-switcher",
+  "version": "1.0.0",
+  "description": "A simple GUI for managing Docker Compose projects",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^24.6.2"
+  },
+  "homepage": "https://github.com/aclips/dock-switcher",
+  "author": {
+    "name": "Nitita Ermilichev",
+    "email": "dev@aclips.ru"
+  },
+  "build": {
+    "appId": "com.dockswitcher.app",
+    "productName": "DockSwitcher",
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "assets/icons/icon.png"
+    }
+  }
+}
